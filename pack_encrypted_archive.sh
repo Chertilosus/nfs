@@ -56,7 +56,6 @@ install_project() {
     --exclude auth_config.json \
     --exclude server.crt \
     --exclude server.key \
-    --exclude nfs \
     --exclude '*.tar.gz.enc' \
     "${source_dir}/" "${APP_DIR}/"
 
@@ -167,7 +166,6 @@ tar \
   --exclude='./nfs.service' \
   --exclude='./install_from_archive.sh' \
   --exclude='./install_ubuntu_service.sh' \
-  --exclude='./uninstall_nfs.sh' \
   --exclude='./*.tar.gz.enc' \
   --exclude='./*.7z' \
   --exclude='./*.log' \
