@@ -37,7 +37,7 @@ install_project() {
 
   echo "[install 1/6] Installing dependencies"
   apt-get update
-  apt-get install -y ca-certificates curl git rsync build-essential golang-go nodejs npm
+  apt-get install -y ca-certificates curl git rsync build-essential golang-go
 
   echo "[install 2/6] Creating service user and app directory"
   if ! id -u "${APP_USER}" >/dev/null 2>&1; then
@@ -62,9 +62,7 @@ install_project() {
 
   cd "${APP_DIR}"
 
-  echo "[install 4/6] Building frontend and backend"
-  npm install
-  npm run build
+  echo "[install 4/6] Building backend"
   go mod download
   go build -trimpath -ldflags "-s -w" -o nfs .
   chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
