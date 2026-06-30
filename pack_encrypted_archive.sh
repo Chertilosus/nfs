@@ -37,7 +37,7 @@ install_project() {
 
   echo "[install 1/6] Installing dependencies"
   apt-get update
-  apt-get install -y ca-certificates curl git rsync build-essential golang-go
+  apt-get install -y ca-certificates curl git rsync
 
   echo "[install 2/6] Creating service user and app directory"
   if ! id -u "${APP_USER}" >/dev/null 2>&1; then
@@ -62,9 +62,11 @@ install_project() {
 
   cd "${APP_DIR}"
 
-  echo "[install 4/6] Building backend"
-  go mod download
-  go build -trimpath -ldflags "-s -w" -o nfs .
+  echo "[install 4/6] Preparing backend binary"
+  if [[ ! -x "./nfs" ]]; then
+    echo "Prebuilt ./nfs binary not found or not executable inside archive"
+    exit 1
+  fi
   chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
   chmod 750 "${APP_DIR}"
   chmod 750 "${APP_DIR}/nfs"
@@ -148,13 +150,20 @@ if [[ "${#ARCHIVE_PASSWORD}" -ne 30 ]]; then
   exit 1
 fi
 
+echo "[pack] Building production frontend"
+npm run build
+
+echo "[pack] Building Linux amd64 backend binary"
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o nfs .
+
+chmod 750 nfs
+
 tar \
   --exclude='./node_modules' \
   --exclude='./.git' \
   --exclude='./auth_config.json' \
   --exclude='./server.crt' \
   --exclude='./server.key' \
-  --exclude='./nfs' \
   --exclude='./nfs.service' \
   --exclude='./install_from_archive.sh' \
   --exclude='./install_ubuntu_service.sh' \
